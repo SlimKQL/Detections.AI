@@ -1,0 +1,8 @@
+let Tykit=externaldata(Domain:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/TyKit.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project Domain;
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where ActionType == "ConnectionSuccess"
+| where RemoteUrl has_any(Tykit) or RemoteUrl matches regex @"^loginmicr.?s*.*\.cc$"
