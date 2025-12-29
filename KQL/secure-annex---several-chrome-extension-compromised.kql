@@ -23,5 +23,5 @@ DeviceFileEvents
 | where Timestamp > ago(30d)
 | where ActionType == "FileCreated"
 | where FileName has_any(MaliciousExtensions)
-
 | summarize arg_max(Timestamp, *) by DeviceName
+
