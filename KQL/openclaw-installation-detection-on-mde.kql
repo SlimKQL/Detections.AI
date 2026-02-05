@@ -1,4 +1,5 @@
 DeviceProcessEvents
 | where Timestamp > ago(1h)
-| where (InitiatingProcessFileName == "node" and InitiatingProcessCommandLine has "install" and InitiatingProcessCommandLine has "openclaw") or InitiatingProcessCommandLine has "https://openclaw.ai/install."
+| where (InitiatingProcessFileName == "node" and InitiatingProcessCommandLine has "install" and InitiatingProcessCommandLine has "openclaw") or InitiatingProcessCommandLine has "https://openclaw.ai/install." or InitiatingProcessCommandLine has "https://github.com/openclaw/openclaw.git"
+
 | project Timestamp, ActionType, DeviceName, AccountUpn, InitiatingProcessCommandLine 
