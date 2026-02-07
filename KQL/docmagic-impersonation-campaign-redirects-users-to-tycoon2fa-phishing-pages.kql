@@ -1,0 +1,13 @@
+// KQL 1 - to check for any email not blocked by MDO
+
+EmailEvents
+| where Timestamp between (datetime(2026-02-04 00:00:00) .. datetime(2026-02-04 23:59:59))
+| where SenderDisplayName has "donotreply@docmagic.com"
+| where SenderFromAddress has "noreply@frigoarrobba.com.br"
+| where EmailDirection == "Inbound" and DeliveryAction != "Blocked"
+
+// KQL 2 - If KQL 1 return results check if user access Tycoon2FA infra
+
+DeviceNetworkEvents
+| where Timestamp > ago(7d)
+| where RemoteUrl has "listener.facraivo.sa.com"
