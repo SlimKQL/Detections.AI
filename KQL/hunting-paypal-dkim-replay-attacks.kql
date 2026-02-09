@@ -1,0 +1,14 @@
+EmailEvents
+| where Timestamp > ago(1h)
+| where SenderFromAddress == "service@paypal.com"
+| where parse_json(AuthenticationDetails).DKIM == "pass" and 
+parse_json(AuthenticationDetails).DMARC == "pass"
+| where not (ipv4_is_in_range(SenderIPv4,"64.4.240.0/21") or
+ipv4_is_in_range(SenderIPv4,"64.4.248.0/22") or
+ipv4_is_in_range(SenderIPv4,"66.211.168.0/22") or
+ipv4_is_in_range(SenderIPv4,"91.243.72.0/23") or
+ipv4_is_in_range(SenderIPv4,"173.0.80.0/20") or
+ipv4_is_in_range(SenderIPv4,"185.177.52.0/22") or
+ipv4_is_in_range(SenderIPv4,"192.160.215.0/24") or
+ipv4_is_in_range(SenderIPv4,"198.54.216.0/23"))
+| where EmailDirection == "Inbound" and DeliveryAction != "Blocked"
