@@ -1,0 +1,6 @@
+DeviceProcessEvents
+| where Timestamp > ago(1h)
+| extend DeobfuscatedCL = tostring(parse_command_line(tolower(InitiatingProcessCommandLine),"windows"))
+| where DeobfuscatedCL has "nslookup" and DeobfuscatedCL has "findstr"
+| extend IP = extract("([0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})", 1, InitiatingProcessCommandLine)
+| where isnotempty(IP) and not(ipv4_is_private(IP))
