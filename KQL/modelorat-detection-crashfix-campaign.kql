@@ -1,0 +1,4 @@
+DeviceRegistryEvents
+| where Timestamp > ago(1h)
+| where ActionType == "RegistryKeyCreated"
+| where RegistryKey has "\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\MonitoringService"
