@@ -1,0 +1,12 @@
+let Lookback = 7d;
+let InstallCmd = "git clone https://github.com/qwibitai/nanoclaw";
+let ClaudeEP =
+DeviceProcessEvents
+| where Timestamp > ago(Lookback)
+| where (FileName has "node" or FileName has "node.exe") and 
+(InitiatingProcessCommandLine has "claude" or ProcessCommandLine has "claude")
+| distinct DeviceName;
+DeviceProcessEvents
+| where Timestamp > ago(Lookback)
+| where InitiatingProcessCommandLine has InstallCmd or ProcessCommandLine has InstallCmd
+| where DeviceName has_any(ClaudeEP)
