@@ -1,5 +1,5 @@
 let Lookback = 7d;
-let InstallCmd = "git clone https://github.com/qwibitai/nanoclaw";
+let InstallCmd = "https://github.com/qwibitai/nanoclaw";
 let ClaudeEP =
 DeviceProcessEvents
 | where Timestamp > ago(Lookback)
@@ -9,4 +9,6 @@ DeviceProcessEvents
 DeviceProcessEvents
 | where Timestamp > ago(Lookback)
 | where InitiatingProcessCommandLine has InstallCmd or ProcessCommandLine has InstallCmd
+| where InitiatingProcessCommandLine has "git" or ProcessCommandLine has "git"
+| where InitiatingProcessCommandLine has "clone" or ProcessCommandLine has "clone"
 | where DeviceName has_any(ClaudeEP)
