@@ -1,0 +1,5 @@
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where ActionType == "ConnectionSuccess"
+| extend fqdn = replace_string(RemoteUrl, "https://", "")
+| where fqdn matches regex @"^[a-z]{10}\.[0-9a-f\.]+ip6\.arpa$"
