@@ -1,0 +1,10 @@
+let AIModelProvider=externaldata(AIModel:string,AIAPIUrl:string,RiskScore:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/AIModelProvider.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project AIAPIUrl;
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where RemoteUrl has_any(AIModelProvider)
+| extend AIProvider = replace_string(RemoteUrl, "https://", "")
+| summarize Count=count() by AIProvider
+| sort by Count desc 
