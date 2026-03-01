@@ -1,0 +1,11 @@
+let Lookback = 30d;
+let InstallCmd = "https://github.com/nullclaw/nullclaw.git";
+let ZigEP =
+DeviceProcessEvents
+| where Timestamp > ago(Lookback)
+| where InitiatingProcessCommandLine == "zig build-exe"
+| distinct DeviceName;
+DeviceProcessEvents
+| where Timestamp > ago(1h)
+| where InitiatingProcessCommandLine has InstallCmd or ProcessCommandLine has InstallCmd
+| where DeviceName has_any(ZigEP)
