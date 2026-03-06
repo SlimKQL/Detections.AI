@@ -1,0 +1,13 @@
+let CT = dynamic(["InboundConnectionAccepted","ConnectionAcknowledged"
+"ConnectionAttempt","ConnectionFailed","ConnectionSuccess","ConnectionRequest"]);
+let EndpointConnection =
+DeviceNetworkEvents
+| where Timestamp > ago(7d)
+| where ActionType has_any(CT)
+| extend GeoLo = geo_info_from_ip_address(RemoteIP)
+| where GeoLo has "Iran";
+EntraIdSignInEvents
+| where Timestamp > ago(7d)
+| where Country == "IR"
+| union EndpointConnection
+| summarize Count=count() by bin(Timestamp,1h)
