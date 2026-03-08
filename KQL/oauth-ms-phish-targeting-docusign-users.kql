@@ -1,0 +1,9 @@
+let Lookback = 1h;
+let OauthMSPhish =
+EmailUrlInfo
+| where Timestamp > ago(Lookback)
+| where Url matches regex @"page-docusign-[a-z0-9]+\.workers\.dev";
+DeviceNetworkEvents
+| where Timestamp > ago(Lookback)
+| where RemoteUrl matches regex @"page-docusign-[a-z0-9]+\.workers\.dev"
+| union OauthMSPhish
