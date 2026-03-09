@@ -1,0 +1,12 @@
+let Lookback = 1h;
+let OauthMSPhish =
+EmailUrlInfo
+| where Timestamp > ago(Lookback)
+| where UrlDomain matches regex @"index-[a-z0-9]+(\.[a-z0-9\-]+)*\.workers\.dev"
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound"
+| where DeliveryAction <> "Blocked";
+DeviceNetworkEvents
+| where Timestamp > ago(Lookback)
+| where RemoteUrl matches regex @"index-[a-z0-9]+(\.[a-z0-9\-]+)*\.workers\.dev"
+| union OauthMSPhish
