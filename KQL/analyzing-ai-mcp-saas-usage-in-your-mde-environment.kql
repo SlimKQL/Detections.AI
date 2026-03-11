@@ -1,0 +1,10 @@
+let AIMCPServer=externaldata(AIModel:string,AIAPIUrl:string,RiskScore:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/AIMCPServer.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project AIAPIUrl;
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where RemoteUrl has_any(AIMCPServer)
+| extend AIMCP = replace_string(RemoteUrl, "https://", "")
+| summarize Count=count() by AIMCP
+| sort by Count desc 
