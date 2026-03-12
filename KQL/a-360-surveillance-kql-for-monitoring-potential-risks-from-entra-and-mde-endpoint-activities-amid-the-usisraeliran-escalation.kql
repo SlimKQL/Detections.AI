@@ -1,4 +1,4 @@
-let CT = dynamic(["InboundConnectionAccepted","ConnectionAcknowledged"
+let CT = dynamic(["InboundConnectionAccepted","ConnectionAcknowledged",
 "ConnectionAttempt","ConnectionFailed","ConnectionSuccess","ConnectionRequest"]);
 let EndpointConnection =
 DeviceNetworkEvents
@@ -10,4 +10,5 @@ EntraIdSignInEvents
 | where Timestamp > ago(7d)
 | where Country == "IR"
 | union EndpointConnection
+
 | summarize Count=count() by bin(Timestamp,1h)
