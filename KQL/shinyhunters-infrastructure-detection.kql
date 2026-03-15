@@ -1,0 +1,11 @@
+let ShinyHuntersInfra = dynamic([".acess-terms.com",".okta.guide",".sso.guide",
+".okta.domains",".setup-okta.com",".help-okta.com",".desk-okta.com",".safe-okta.com",
+".prod-okta.com",".lock-okta.com",".passkeysetup.com"]);
+let EmailUrlThreat =
+EmailUrlInfo
+| where Timestamp > ago(1h)
+| where Url has_any(ShinyHuntersInfra);
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where RemoteUrl has_any(ShinyHuntersInfra)
+| union EmailUrlThreat
