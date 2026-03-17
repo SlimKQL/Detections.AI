@@ -1,0 +1,14 @@
+let BrowserList = dynamic(["chrome.exe","chromium.exe","firefox.exe","msedge.exe","opera.exe"]);
+let ClawAgents = dynamic(["OpenClaw","Clawdbot","Moltbot","Molty","Ironclaw","NemoClaw","VisionClaw",
+"MobileClaw","MicroClaw","NanoClaw","EdgeClaw","LiteClaw","TinyClaw","MiniClaw","ChipClaw","IoTClaw",
+"SensorClaw","PocketClaw","StreamClaw","Moltbook","CommunityClaw","HubClaw","ZeroClaw","MaxClaw","QClaw",
+"KimiClaw","SwarmClaw","SlackClaw","PhoneClaw","WebClaw","MimiClaw","JVSClaw","MalClaw"]);
+let AIAgentProcess =
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessCommandLine has_any (ClawAgents) and InitiatingProcessCommandLine has "clone";
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessCommandLine has_any(ClawAgents)
+| where not (InitiatingProcessFileName has_any(BrowserList))
+| union AIAgentProcess
