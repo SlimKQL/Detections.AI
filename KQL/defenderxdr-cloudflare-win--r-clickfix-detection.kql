@@ -1,0 +1,21 @@
+let Lookup = 1h;
+let Parameters = dynamic(['http', 'https', 'webdav']);
+let Executables = dynamic(["cmd", "net use"]);
+let WinR =
+DeviceRegistryEvents
+| where Timestamp > ago(Lookup)
+| where ActionType == "RegistryValueSet"
+| where RegistryKey has "RunMRU"
+| where RegistryValueData has_any (Parameters) and RegistryValueData has_any (Executables)
+| distinct DeviceName;
+let GetClipboard =
+DeviceEvents
+| where Timestamp > ago(Lookup)
+| where ActionType == "GetClipboardData"
+| distinct DeviceName;
+DeviceNetworkEvents
+| where Timestamp > ago(Lookup)
+| where InitiatingProcessCommandLine has "webdav"
+| where RemoteIPType == "Public"
+| where DeviceName has_any(GetClipboard)
+| where DeviceName has_any(WinR)
