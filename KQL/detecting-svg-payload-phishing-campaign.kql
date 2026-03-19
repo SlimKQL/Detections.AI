@@ -1,0 +1,7 @@
+EmailAttachmentInfo
+| where Timestamp > ago(30d)
+| where FileExtension has ".svg" and FileType == "html"
+| where FileName matches regex @"[A-Za-z0-9+/=]{20,}"
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound"
+| where DeliveryAction == "Delivered" and isempty(EmailAction)
