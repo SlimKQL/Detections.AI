@@ -1,0 +1,8 @@
+let MonitorKeywordSubject = dynamic(["severity", "activated", "deactivated", 
+"alert", "invoice", "payment", "order", "fund"]);
+EmailEvents
+| where Timestamp > ago(30d)
+| where SenderFromAddress == "azure-noreply@microsoft.com" and EmailDirection == "Inbound"
+| where DeliveryAction == "Delivered" and DeliveryLocation == "Inbox/folder"
+| where IsFirstContact == true
+| where Subject has_any(MonitorKeywordSubject)
