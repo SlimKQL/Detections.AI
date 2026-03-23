@@ -1,0 +1,14 @@
+let MasqueradeExes = dynamic(["MicDriver.exe", "Winappx.exe", "MsCache.exe", "RuntimeSSH.exe", "smqdservice.exe"]);
+let MOIS=externaldata(FileName:string,MD5:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/MOISIOC.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project MD5;
+let FileHash =
+DeviceFileEvents
+| where Timestamp > ago(30d)
+| where MD5 has_any(MOIS);
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where RemoteUrl has "api.telegram.org"
+| where InitiatingProcessFileName has_any(MasqueradeExes)
+| union FileHash
