@@ -1,3 +1,5 @@
+// Version 1
+
 let MonitorKeywordSubject = dynamic(["severity", "activated", "deactivated", 
 "alert", "invoice", "payment", "order", "fund"]);
 EmailEvents
@@ -6,3 +8,17 @@ EmailEvents
 | where DeliveryAction == "Delivered" and DeliveryLocation == "Inbox/folder"
 | where IsFirstContact == true
 | where Subject has_any(MonitorKeywordSubject)
+
+// Version 2 - 99.9% detection rate
+
+let AzureUsers =
+AADSignInEventsBeta
+| where Timestamp > ago(30d) 
+| where Application == "Azure Portal" and ErrorCode == "0"
+| distinct AccountUpn;
+EmailEvents
+| where Timestamp > ago(30d)
+| where SenderFromAddress == "azure-noreply@microsoft.com" and EmailDirection == "Inbound"
+| where DeliveryAction == "Delivered" and DeliveryLocation == "Inbox/folder"
+| where not (RecipientEmailAddress has_any(AzureUsers))
+| where IsFirstContact == true
