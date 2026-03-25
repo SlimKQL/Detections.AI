@@ -1,0 +1,13 @@
+let UserVisitedDeviceAuth =
+UrlClickEvents
+| where Timestamp > ago(1h)
+| where ActionType in ("ClickAllowed", "UrlScanInProgress", "UrlErrorPage") or IsClickedThrough != "0"
+| where UrlChain has_any ("microsoft.com/devicelogin", "login.microsoftonline.com/common/oauth2/deviceauth")
+| where Workload == "Email"
+| distinct AccountUpn;
+CloudAppEvents
+| where Timestamp > ago(1h)
+| where AccountDisplayName == "Device Registration Service"
+| extend ID = extract("Device_(.*)", 1, tostring(RawEventData.ObjectId))
+| join IdentityInfo on $left.ID == $right.AccountObjectId
+| where AccountUpn has_any(UserVisitedDeviceAuth)
