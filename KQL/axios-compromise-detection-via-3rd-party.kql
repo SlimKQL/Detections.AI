@@ -1,0 +1,9 @@
+let CompromisedAxios =
+AADSignInEventsBeta 
+| where Timestamp > ago(1h)
+| where isnotempty(DeviceTrustType) and ErrorCode == "0"
+| where UserAgent has "axios/1.14.1" or UserAgent has "axios/0.30.4";
+CloudAppEvents
+| where Timestamp > ago(1h)
+| where UserAgent has "axios/1.14.1" or UserAgent has "axios/0.30.4"
+| union CompromisedAxios
