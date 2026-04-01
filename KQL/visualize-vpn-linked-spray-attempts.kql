@@ -1,0 +1,10 @@
+let VPNInfo =
+CloudAppEvents
+| where Timestamp > ago(30d)
+| where ISP has "vpn"
+| distinct IPAddress, ISP;
+AADSignInEventsBeta
+| where Timestamp > ago(30d)
+| where ErrorCode == "50053" or ErrorCode == "50126"
+| join VPNInfo on $left.IPAddress == $right.IPAddress
+| summarize PasswordSpray = count() by bin(Timestamp, 1d)
