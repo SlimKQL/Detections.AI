@@ -1,0 +1,5 @@
+SigninLogs
+| where TimeGenerated > ago(1h)
+| where ResultType == "0" or ResultType == "90095"
+| where AppId == "08ad6f98-a4f8-4635-bb8d-f1a3044760f0" 
+or AppId == "07c030f6-5743-41b7-ba00-0a6e85f37c17"
