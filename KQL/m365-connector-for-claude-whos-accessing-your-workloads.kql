@@ -1,0 +1,6 @@
+GraphAPIAuditEvents 
+| where ApplicationId  == "08ad6f98-a4f8-4635-bb8d-f1a3044760f0" or ApplicationId == "07c030f6-5743-41b7-ba00-0a6e85f37c17"
+| where RequestMethod == "GET"
+| join IdentityInfo on AccountObjectId
+| summarize ClaudeAccessCount=count() by AccountUpn, TargetWorkload
+| sort by ClaudeAccessCount, AccountUpn desc 
