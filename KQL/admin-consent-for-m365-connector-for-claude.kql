@@ -1,0 +1,7 @@
+CloudAppEvents
+| where Timestamp > ago(1h)
+| where ActionType == "Consent to application." and AccountType == "Admin"
+| where ObjectName == "M365 MCP Client for Claude"
+| extend AdminUPN = tostring(RawEventData.UserId)
+| extend ConsentData = tostring(RawEventData.ModifiedProperties)
+| project Timestamp, AdminUPN, ActionType, ObjectName, ConsentData, ReportId
