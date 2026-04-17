@@ -1,0 +1,26 @@
+let SuspiciousExe =
+DeviceFileEvents
+| where Timestamp > ago(1d)
+| where ActionType == "FileCreated"
+| where FileName endswith ".exe"
+| invoke FileProfile("SHA1",1000)
+| where isnotempty(GlobalPrevalence)
+| where GlobalPrevalence < 5
+| distinct FileName;
+let EICARTriggered =
+DeviceEvents
+| where Timestamp > ago(1h)
+| where ActionType == "AntivirusDetection"
+| extend ParsedFields = parse_json(AdditionalFields)
+| where ParsedFields.ThreatName has "EICAR"
+| distinct DeviceName;
+let NamePipeCreationbySuspiciousFile =
+DeviceEvents
+| where Timestamp > ago(1h)
+| where ActionType == "NamedPipeEvent" and InitiatingProcessFileName has_any(SuspiciousExe)
+| distinct DeviceName;
+DeviceProcessEvents
+| where Timestamp > ago(1h)
+| where InitiatingProcessAccountSid == "S-1-5-18" or AccountSid == "S-1-5-18"
+| where FileName == "conhost.exe" and InitiatingProcessFileName has_any(SuspiciousExe)
+| where DeviceName has_any(EICARTriggered) and DeviceName has_any(NamePipeCreationbySuspiciousFile)
