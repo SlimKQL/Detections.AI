@@ -1,0 +1,11 @@
+let HDKeywords = dynamic(["IT", "Support", "Helpdesk", "Desk", "Service", 
+"Tech", "Admin", "Ops", "Assist", "Team", "Center"]);
+CloudAppEvents
+| where Timestamp > ago(1h)
+| where Application == "Microsoft Teams"
+| where ActionType == "ChatCreated"
+| where RawEventData.CommunicationType == "OneOnOne"
+| where parse_json(tostring(RawEventData.ParticipantInfo)).HasForeignTenantUsers == true 
+| extend AccountUPN = tolower(tostring(parse_json(RawEventData)["UserId"]))
+| where AccountUPN endswith ".onmicrosoft.com"
+| where AccountUPN has_any(HDKeywords)
