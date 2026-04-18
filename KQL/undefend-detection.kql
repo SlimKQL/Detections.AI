@@ -1,0 +1,14 @@
+let LookBackup = 3d;
+let DeviceFailedAVUpdate =
+DeviceTvmInfoGathering
+| where Timestamp > ago(LookBackup)
+| where parse_json(AdditionalFields)["AvIsSignatureUptoDate"] == 'false'
+| distinct DeviceName;
+DeviceFileEvents
+| where Timestamp > ago(LookBackup)
+| where DeviceName has_any(DeviceFailedAVUpdate)
+| where ActionType == "FileCreated"
+| where FileName endswith ".exe"
+| invoke FileProfile("SHA1",1000)
+| where isnotempty(GlobalPrevalence)
+| where GlobalPrevalence < 5
