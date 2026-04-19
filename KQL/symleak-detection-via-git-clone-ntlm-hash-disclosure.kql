@@ -1,0 +1,10 @@
+let VulnerableEP =
+DeviceTvmSoftwareVulnerabilities
+| where CveId == "CVE-2026-32631"
+| distinct DeviceName;
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where InitiatingProcessFileName has "git"
+| where InitiatingProcessCommandLine has "git clone"
+| where RemoteIPType == "Public" and RemotePort == 445
+| where DeviceName has_any(VulnerableEP)
