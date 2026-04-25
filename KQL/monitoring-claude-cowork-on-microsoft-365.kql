@@ -1,0 +1,13 @@
+let LookBack = 30d;
+let CoworkDevice =
+DeviceNetworkEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ConnectionSuccess"
+| where InitiatingProcessFileName has "cowork-svc"
+| distinct DeviceName;
+EntraIdSignInEvents
+| where Timestamp > ago(LookBack)
+| where ErrorCode == "0"
+| where ApplicationId == "08ad6f98-a4f8-4635-bb8d-f1a3044760f0" 
+or ApplicationId == "07c030f6-5743-41b7-ba00-0a6e85f37c17"
+| where DeviceName has_any(CoworkDevice)
