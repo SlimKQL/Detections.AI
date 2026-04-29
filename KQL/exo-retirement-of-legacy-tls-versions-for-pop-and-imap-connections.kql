@@ -1,0 +1,9 @@
+EntraIdSignInEvents
+| where Timestamp > ago(30d)
+| where ErrorCode == "0"
+| where ResourceDisplayName == "Office 365 Exchange Online" or
+ResourceDisplayName == "Office 365 Exchange Microservices" or
+ResourceDisplayName == "Microsoft Exchange Online Protection"
+| extend LegacyTLS = tostring(parse_json(AuthenticationProcessingDetails)[0].value)
+| where LegacyTLS == "True"
+| project Timestamp, AccountDisplayName, AccountUpn, ResourceDisplayName, DeviceName
