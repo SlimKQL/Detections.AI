@@ -4,6 +4,7 @@ EntraIdSignInEvents
 | where ResourceDisplayName == "Office 365 Exchange Online" or
 ResourceDisplayName == "Office 365 Exchange Microservices" or
 ResourceDisplayName == "Microsoft Exchange Online Protection"
-| extend LegacyTLS = tostring(parse_json(AuthenticationProcessingDetails)[0].value)
-| where LegacyTLS == "True"
+| mv-expand todynamic(AuthenticationProcessingDetails)
+| where AuthenticationProcessingDetails.key == "Legacy TLS (TLS 1.0, 1.1, 3DES)"
+| where AuthenticationProcessingDetails.value == "True"
 | project Timestamp, AccountDisplayName, AccountUpn, ResourceDisplayName, DeviceName
