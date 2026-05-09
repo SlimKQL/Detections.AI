@@ -1,0 +1,15 @@
+let LookBack = 1h;
+let ElfBinaryCreatedInUserDirectory =
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "FileCreated"
+| extend FileType=tostring(parse_json(AdditionalFields)["FileType"])
+| where FileType == "ElfSharedLib" or FileType == "ElfExecutable"
+| where FolderPath startswith "/home/"
+| distinct FileName;
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ProcessCreated"
+| where FileName == "su" and FolderPath == "/usr/bin/su"
+| where InitiatingProcessFolderPath startswith "/home/"
+| where InitiatingProcessFileName has_any(ElfBinaryCreatedInUserDirectory)
