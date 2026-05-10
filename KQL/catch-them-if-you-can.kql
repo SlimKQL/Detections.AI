@@ -1,0 +1,25 @@
+let LookBack = 1d;
+let RemoteFetchCodeCmd = dynamic(["curl","wget","lftp","axel","aria2","scp","rsync","ftp"]);
+let FetchCodeEP =
+DeviceNetworkEvents
+| where InitiatingProcessCommandLine has_any(RemoteFetchCodeCmd) and RemoteIPType == "Public"
+| distinct DeviceName;
+let FilelessLPE =
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where ProcessCommandLine has "algif-aead" and DeviceName has_any(FetchCodeEP);
+let ElfBinaryCreatedInUserDirectory =
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "FileCreated"
+| extend FileType=tostring(parse_json(AdditionalFields)["FileType"])
+| where FileType == "ElfSharedLib" or FileType == "ElfExecutable"
+| where FolderPath startswith "/home/"
+| distinct FileName;
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ProcessCreated"
+| where FileName == "su" and FolderPath == "/usr/bin/su"
+| where InitiatingProcessFolderPath startswith "/home/"
+| where InitiatingProcessFileName has_any(ElfBinaryCreatedInUserDirectory)
+| union FilelessLPE
