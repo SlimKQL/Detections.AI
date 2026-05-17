@@ -1,0 +1,16 @@
+let LookBack = 1d;
+let LowGPExeByUser =
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "FileCreated" and tostring(FileName) endswith ".exe"
+| where InitiatingProcessAccountName != "system"
+| invoke FileProfile("SHA1",1000)
+| where GlobalPrevalence < 5
+| distinct FileName;
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ProcessCreated"
+| where FileName == "conhost.exe" and InitiatingProcessIntegrityLevel == "System"
+| where InitiatingProcessVersionInfoInternalFileName has_any(LowGPExeByUser)
+| project Timestamp, DeviceName, ActionType, InitiatingProcessIntegrityLevel, 
+InitiatingProcessVersionInfoInternalFileName, InitiatingProcessFolderPath
