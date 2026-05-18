@@ -1,0 +1,20 @@
+let LookBack = 3h;
+let RMMUrl=externaldata(URI: string, RMMTool: string)
+[h'https://raw.githubusercontent.com/jischell-msft/RemoteManagementMonitoringTools/refs/heads/main/Network%20Indicators/RMM_SummaryNetworkURI.csv']
+| project URI;
+let UPNUseRMM =
+DeviceNetworkEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == @"ConnectionSuccess"
+| where RemoteUrl has_any(RMMUrl)
+| distinct InitiatingProcessAccountUpn;
+CloudAppEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationDisplayName = tostring(parse_json(tostring(RawEventData.Sender)).DisplayName)
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| extend ImpactedUserUPN = tostring(RawEventData.UserId)
+| where (tolower(ImpersonationDisplayName) matches regex @"(compliance|security|secops|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)" 
+or tolower(ImpersonationUPN) matches regex @"(compliance|security|secops|onmicrosoft|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)")
+| where ImpactedUserUPN has_any(UPNUseRMM)
+| project Timestamp, ImpactedUserUPN, ImpersonationDisplayName, ImpersonationUPN
