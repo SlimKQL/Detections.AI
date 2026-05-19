@@ -1,0 +1,19 @@
+let LookBack = 1h;
+let MailBombUser =
+EmailEvents
+| where Timestamp > ago(LookBack)
+| summarize MailCount=count() by RecipientEmailAddress
+| where MailCount > 100
+| distinct RecipientEmailAddress;
+CloudAppEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationDisplayName = tostring(parse_json(tostring(RawEventData.Sender)).DisplayName)
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| extend ImpactedUserUPN = tostring(RawEventData.UserId)
+| where (tolower(ImpersonationDisplayName) matches regex 
+@"(compliance|security|secops|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)" 
+or tolower(ImpersonationUPN) matches regex 
+@"(compliance|security|secops|onmicrosoft|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)")
+| where ImpactedUserUPN has_any(MailBombUser)
+| project TimeGenerated, ImpactedUserUPN, ImpersonationDisplayName, ImpersonationUPN
