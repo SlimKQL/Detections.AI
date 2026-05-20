@@ -1,0 +1,6 @@
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessCommandLine has "\\.vscode\\extensions\\" and InitiatingProcessCommandLine has "code.exe"
+| extend ExtensionName = extract(@"extensions\\([^\\]+)", 1, InitiatingProcessCommandLine)
+| distinct DeviceName, ExtensionName
+| sort by DeviceName asc 
