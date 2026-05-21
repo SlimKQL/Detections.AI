@@ -1,0 +1,18 @@
+let LookBack = 1h;
+let ModeloRAT =
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where InitiatingProcessCommandLine has "\\AppData\\Roaming\\WPy64-" and InitiatingProcessCommandLine has "pythonw.exe"
+| distinct InitiatingProcessAccountUpn;
+CloudAppEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationDisplayName = tostring(parse_json(tostring(RawEventData.Sender)).DisplayName)
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| extend ImpactedUserUPN = tostring(RawEventData.UserId)
+| where (tolower(ImpersonationDisplayName) matches regex 
+@"(compliance|security|secops|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)" 
+or tolower(ImpersonationUPN) matches regex 
+@"(compliance|security|secops|onmicrosoft|help|desk|support|^tech|tech$|tech\s|assistance|troubleshoot|admin|^it|it$|it\s)")
+| where ImpactedUserUPN has_any(ModeloRAT)
+| project Timestamp, ImpactedUserUPN, ImpersonationDisplayName, ImpersonationUPN
