@@ -1,0 +1,17 @@
+let EvilTokenMail =
+EmailUrlInfo
+| where Url contains ".workers.dev"
+| where Url matches regex @"\.(p|c)-[a-z0-9]{6,10}\.workers\.dev"
+| project TimeGenerated, NetworkMessageId, Url;
+let EvilTokenClick =
+UrlClickEvents
+| where Url contains ".workers.dev"
+| where Url matches regex @"\.(p|c)-[a-z0-9]{6,10}\.workers\.dev"
+| project TimeGenerated, AccountUpn, Url, ActionType;
+DeviceNetworkEvents
+| where RemoteUrl endswith ".workers.dev"
+| where RemoteUrl matches regex @"\.(p|c)-[a-z0-9]{6,10}\.workers\.dev"
+| extend FirstLabel = tostring(split(RemoteUrl, ".")[0])
+| where FirstLabel contains "-"
+| project TimeGenerated, DeviceName, RemoteUrl, InitiatingProcessFileName, InitiatingProcessCommandLine
+| union EvilTokenMail, EvilTokenClick
