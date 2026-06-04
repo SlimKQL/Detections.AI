@@ -1,0 +1,17 @@
+let LookBack = 1h;
+let SearchURI = dynamic(["search:"]);
+let SearchURIParameters = dynamic(["query=","crumb="]);
+let SearchURIClicker =
+UrlClickEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == @"ClickAllowed"
+| where UrlChain has_any(SearchURI) and UrlChain has_any(SearchURIParameters)
+| distinct AccountUpn
+| join IdentityInfo on AccountUpn
+| distinct OnPremSid;
+DeviceNetworkEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ConnectionSuccess"
+| where RemotePort == 445 and RemoteIPType == "Public"
+| join DeviceInfo on DeviceId
+| where LoggedOnUsers has_any(SearchURIClicker)
