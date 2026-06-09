@@ -1,0 +1,7 @@
+ExposureGraphEdges 
+| where SourceNodeLabel == @"ai-agent"
+| join ExposureGraphNodes on $left.SourceNodeId == $right.NodeId
+| project AISoftwareName=SourceNodeName, UsedByUser=TargetNodeName, 
+AgentType=parse_json(NodeProperties).rawData.aiAgentMetadata.platform,
+ProcessName=parse_json(NodeProperties).rawData.aiAgentMetadata.processName,
+AgentVersion=parse_json(NodeProperties).rawData.aiAgentMetadata.agentVersion
