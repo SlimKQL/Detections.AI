@@ -1,0 +1,5 @@
+DeviceFileEvents
+| where Timestamp > ago(1h)
+| where ActionType in ("FileCreated", "FileModified", "FileRenamed")
+| where FileName =~ "unattend.xml"
+| where FolderPath matches regex @"^[A-Za-z]:\\unattend\.xml$"
