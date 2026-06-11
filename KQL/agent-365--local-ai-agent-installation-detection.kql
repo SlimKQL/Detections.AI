@@ -1,0 +1,9 @@
+AIAgentsInfo
+| where AgentCreationTime > ago(1d) 
+| where Platform == @"LocalAgents"
+| project AIVendor=parse_json(RawAgentInfo).localAgentMetadata.vendor,
+AISoftwareName=parse_json(RawAgentInfo).name,
+DeviceName=parse_json(RawAgentInfo).localAgentMetadata.deviceName,
+OSPlatform=parse_json(RawAgentInfo).localAgentMetadata.osPlatform,
+UserName=parse_json(RawAgentInfo).localAgentMetadata.accountName,
+AccountSid=parse_json(RawAgentInfo).localAgentMetadata.accountSid
