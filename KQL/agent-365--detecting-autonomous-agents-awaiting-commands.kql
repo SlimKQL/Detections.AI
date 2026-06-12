@@ -1,0 +1,9 @@
+let AIAgentProcess =
+ExposureGraphEdges
+| where SourceNodeLabel == @"ai-agent"
+| join ExposureGraphNodes on $left.SourceNodeId == $right.NodeId
+| distinct tostring(parse_json(NodeProperties).rawData.aiAgentMetadata.processName);
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessCommandLine has_any(AIAgentProcess)
+| where ActionType == "ListeningConnectionCreated"
