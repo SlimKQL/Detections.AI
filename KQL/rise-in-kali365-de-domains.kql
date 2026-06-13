@@ -1,0 +1,9 @@
+let Kali365IOC=externaldata(Domain:string,Date:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/Kali365June.csv']
+with (format='csv', ignoreFirstRecord=true)
+| extend RootDomain = extract(@"([^.]+\.[^.]+)$", 1, Domain)
+| distinct RootDomain;
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where ActionType == "ConnectionSuccess"
+| where RemoteUrl has_any(Kali365IOC)
