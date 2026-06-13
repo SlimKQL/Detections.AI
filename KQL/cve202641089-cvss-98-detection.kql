@@ -1,0 +1,19 @@
+let VulnerableEP =
+DeviceTvmSoftwareVulnerabilities 
+| where CveId == "CVE-2026-41089"
+| distinct DeviceId;
+let InternetFacingVEP =
+DeviceInfo
+| where IsInternetFacing == true and isnotempty(PublicIP)
+| where DeviceId has_any(VulnerableEP);
+let InboundRPCNetlogon =
+DeviceEvents
+| where ActionType == "InboundRemoteRpcCall"
+| extend AdditionalFields = parse_json(AdditionalFields)
+| where AdditionalFields.RpcInterfaceUuid == "12345678-1234-abcd-ef00-01234567cffb";
+DeviceNetworkEvents
+| where DeviceId has_any(InternetFacingVEP)
+| where ActionType == @"InboundConnectionAttempt"
+| where not(ipv4_is_private(RemoteIP))
+| where LocalPort == "445"
+| union InboundRPCNetlogon
