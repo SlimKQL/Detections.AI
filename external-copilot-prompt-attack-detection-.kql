@@ -1,0 +1,7 @@
+let LookBack = 1h;
+UrlClickEvents 
+| where Timestamp > ago(LookBack)
+| where ActionType == @"ClickAllowed"
+// Check for Email, Teams and Office Workload for embbeded Copilot Prompt in URL
+| where Workload != @"Copilot"
+| where UrlChain has "https://m365.cloud.microsoft/search/?auth=2&origindomain=microsoft365&q="
