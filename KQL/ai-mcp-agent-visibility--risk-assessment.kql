@@ -1,0 +1,12 @@
+let EndpointMCPAgent =
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where ActionType == "ListeningConnectionCreated"
+| where LocalIP == "127.0.0.1" or LocalIP == "0.0.0.0"
+| where InitiatingProcessCommandLine has "mcp"
+| distinct DeviceName;
+ExposureGraphEdges 
+| where EdgeLabel == @"frequently logged in by"
+| where SourceNodeName has_any(EndpointMCPAgent)
+| join ExposureGraphNodes on $left.TargetNodeId == $right.NodeId
+// Your MCP Agent will have roles equivalent to NodeProperties column Assigned Roles
