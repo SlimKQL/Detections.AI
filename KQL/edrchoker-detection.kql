@@ -1,0 +1,19 @@
+let LookBack= 1h;
+let SuspectedChoker =
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "FileCreated"
+| where FileName endswith ".exe" 
+| where InitiatingProcessAccountName != @"system"
+| distinct FileName;
+let SuspectedDevice =
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where FileName has_any(SuspectedChoker)
+| where ProcessCommandLine has " "
+| where InitiatingProcessFileName == @"cmd.exe"
+| distinct DeviceName;
+DeviceInfo
+| where Timestamp > ago(LookBack)
+| where SensorHealthState == @"Inactive"
+| where DeviceName has_any(SuspectedDevice)
