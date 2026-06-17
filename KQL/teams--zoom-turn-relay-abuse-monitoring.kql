@@ -1,3 +1,10 @@
+let WhitelistProcess = dynamic([
+"ms-teams.exe",
+"chrome.exe",
+"msedge.exe",
+"firefox.exe",
+"msedgewebview2.exe"
+]);
 let TURN = dynamic(["default.relay.teams.microsoft.com",
 "worldaz.relay.teams.microsoft.com","worldaz.relay.teams.trafficmanager.net",
 "turnsg01.cloud.zoom.us","turnsg02.cloud.zoom.us"]);
@@ -5,3 +12,4 @@ DeviceNetworkEvents
 | where Timestamp > ago(1h)
 | where ActionType == "ConnectionSuccess"
 | where RemoteUrl has_any(TURN)
+| where not (InitiatingProcessVersionInfoOriginalFileName has_any(WhitelistProcess))
