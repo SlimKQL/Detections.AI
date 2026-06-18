@@ -2,6 +2,7 @@ let InternetExposedEP =
 DeviceTvmSecureConfigurationAssessmentKB
 | where ConfigurationName == @"Reduce unnecessary inbound internet exposure on internet-facing devices"
 | join DeviceTvmSecureConfigurationAssessment on ConfigurationId
+| where IsCompliant !=1 and IsApplicable==1
 | distinct DeviceName;
 DeviceNetworkEvents
 | where Timestamp > ago(30d)
