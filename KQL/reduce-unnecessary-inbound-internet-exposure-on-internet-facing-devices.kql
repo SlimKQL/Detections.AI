@@ -1,0 +1,12 @@
+let InternetExposedEP =
+DeviceTvmSecureConfigurationAssessmentKB
+| where ConfigurationName == @"Reduce unnecessary inbound internet exposure on internet-facing devices"
+| join DeviceTvmSecureConfigurationAssessment on ConfigurationId
+| distinct DeviceName;
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where ActionType == "ListeningConnectionCreated"
+| where DeviceName has_any(InternetExposedEP)
+| where LocalIP != @"127.0.0.1"
+| summarize ListeningPortExposed=dcount(LocalPort) by DeviceName
+| sort by ListeningPortExposed desc 
