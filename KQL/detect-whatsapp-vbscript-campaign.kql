@@ -1,0 +1,19 @@
+let LookBack = 1h;
+let WhatsAppDevice =
+DeviceNetworkEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == "ConnectionSuccess"
+| where RemoteUrl == "web.whatsapp.com"
+| distinct DeviceName;
+let WAVBSCreated =
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType=="FileCreated"
+| where FolderPath has "WhatsAppDesktop"
+| where tolower(FileName) endswith ".vbs"
+| where DeviceName has_any(WhatsAppDevice)
+| distinct DeviceName;
+DeviceProcessEvents
+| where Timestamp > ago(LookBack)
+| where FileName =~ "wscript.exe"
+| where DeviceName has_any(WAVBSCreated)
