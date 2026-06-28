@@ -1,0 +1,9 @@
+let HelpdeskDomain = dynamic(["helpdesk-quick.com","helpdesk-call.com","helpdesk-service.com"]);
+CloudAppEvents
+| where Timestamp > ago(30d)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationDisplayName = tostring(parse_json(tostring(RawEventData.Sender)).DisplayName)
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| extend ImpactedUserUPN = tostring(RawEventData.UserId)
+| where ImpersonationUPN has_any(HelpdeskDomain)
+| project Timestamp, AccountType, ImpactedUserUPN, ImpersonationDisplayName, ImpersonationUPN
