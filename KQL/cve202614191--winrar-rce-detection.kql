@@ -1,0 +1,6 @@
+DeviceProcessEvents
+| where Timestamp > ago(1h)
+| where InitiatingProcessFileName has "UnRAR.exe" or InitiatingProcessFileName has "WinRAR.exe"
+| where InitiatingProcessCommandLine has ".rev"
+| extend VersionShort = toreal(tostring(extract(@"^\d+\.\d+", 0, InitiatingProcessVersionInfoProductVersion)))
+| where VersionShort < 7.23
