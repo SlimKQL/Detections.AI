@@ -1,0 +1,20 @@
+let LookBack = 1h;
+let ARTokenC2 = dynamic([
+"hewktree.net",
+"pamconj.com",
+"corabuild.eu",
+"outllerbuilt.com",
+"badrockstabilization.com",
+"klwo.org"
+]);
+let SuspectedEmailLure =
+EmailUrlInfo
+| where Timestamp > ago(LookBack)
+| where Url has ".sharepoint.com" or Url has ".workers.dev"
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound"
+| where IsFirstContact == true;
+DeviceNetworkEvents
+| where Timestamp > ago(LookBack)
+| where RemoteUrl has_any(ARTokenC2)
+| union SuspectedEmailLure
