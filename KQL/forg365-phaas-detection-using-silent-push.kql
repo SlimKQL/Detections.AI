@@ -1,0 +1,22 @@
+// Forg365 PhaaS Detection Using Silent Push
+// Author: KQLWizard (Steven Lim)
+//
+let Forg365BackendNode = dynamic([
+"104.21.73.235",
+"104.21.73.235",
+"188.114.96.11",
+"104.21.17.182",
+"188.114.96.2",
+"143.198.0.184",
+"143.198.0.184",
+"104.21.17.182",
+"188.114.96.2",
+"104.21.17.182",
+"188.114.96.2",
+"188.114.96.11"
+]);
+EntraIdSignInEvents
+| where Timestamp > ago(1h) 
+| where EndpointCall == "Cmsi:Cmsi"
+| where ErrorCode == "0"
+| where IPAddress has_any(Forg365BackendNode)
