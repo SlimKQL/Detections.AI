@@ -1,0 +1,9 @@
+AgentsInfo 
+| where Platform == @"LocalAgents"
+| where PublishedStatus == @"Published"
+| where isnotempty(McpServers)
+| summarize arg_max(Timestamp, *) by AgentId
+| mv-expand McpServers
+| extend McpSrv = tolower(tostring(parse_json(McpServers).endpoint))
+| summarize Count=count() by McpSrv
+| sort by Count desc 
