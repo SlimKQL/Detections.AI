@@ -1,0 +1,16 @@
+// High Fidelity Forg365 PhaaS Detection
+// Author: KQLWizard (Steven Lim)
+//
+let Forg365BackendNode = dynamic([
+// https://platform.censys.io/search?q=web.endpoints.http.body%3A+%22Forg365%22
+"139.28.38.129",
+"104.21.73.235",
+"172.67.193.90",
+"188.114.96.0",
+"188.114.97.0"
+]);
+EntraIdSignInEvents
+| where Timestamp > ago(1h) 
+| where EndpointCall == "Cmsi:Cmsi"
+| where ErrorCode == "0"
+| where IPAddress has_any(Forg365BackendNode)
