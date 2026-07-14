@@ -1,0 +1,19 @@
+let AgentProcess =
+AIAgentsInfo
+| where AgentCreationTime > ago(30d) 
+| where Platform == @"LocalAgents"
+| where IsBlocked == false
+| where parse_json(RawAgentInfo).publishedStatus == 'Published'
+| extend ProcessName = tostring(parse_json(RawAgentInfo).localAgentMetadata.relatedProcess)
+| distinct ProcessName;
+DeviceProcessEvents 
+| where Timestamp > ago(30d) 
+| where InitiatingProcessFileName has_any(AgentProcess)
+| where FileName in~ ( 
+    "cmd.exe", "powershell.exe", "pwsh.exe", "bash.exe", "wsl.exe", 
+    "certutil.exe", "mshta.exe", "rundll32.exe", "regsvr32.exe", 
+    "curl.exe", "wget.exe", "bitsadmin.exe" 
+) 
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, 
+          InitiatingProcessFileName, InitiatingProcessCommandLine 
+| sort by Timestamp desc 
