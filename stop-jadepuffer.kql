@@ -1,0 +1,7 @@
+let JADEPUFFER =
+DeviceTvmSoftwareVulnerabilities
+| where CveId == "CVE-2025-3248"
+| distinct DeviceName;
+DeviceInfo
+| where IsInternetFacing == true and isnotempty(PublicIP)
+| where DeviceName has_any(JADEPUFFER)
