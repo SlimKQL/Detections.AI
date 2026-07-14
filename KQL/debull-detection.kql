@@ -1,0 +1,3 @@
+SigninLogs
+| where TimeGenerated > ago(30d)
+| where DeviceDetail.displayName == "GraphSpy-Device"
