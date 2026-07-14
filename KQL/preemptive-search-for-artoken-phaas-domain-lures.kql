@@ -1,0 +1,8 @@
+let ARTokenCFIOC=externaldata(Domain:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/ARTokenIOC.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project Domain;
+DeviceNetworkEvents
+| where Timestamp > ago(30d)
+| where ActionType == "ConnectionSuccess"
+| where RemoteUrl has_any(ARTokenCFIOC)
