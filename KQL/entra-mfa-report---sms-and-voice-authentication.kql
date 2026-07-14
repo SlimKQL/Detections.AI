@@ -1,0 +1,7 @@
+SigninLogs
+| where TimeGenerated > ago(90d)
+| extend MfaMethod = tostring(parse_json(AuthenticationDetails)[1].authenticationMethod)
+| where parse_json(AuthenticationDetails)[0].succeeded == true and parse_json(AuthenticationDetails)[1].succeeded == true
+| where MfaMethod == "Text message" or MfaMethod has "phone"
+| distinct UserPrincipalName, MfaMethod
+//| summarize Count=count() by MfaMethod
