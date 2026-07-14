@@ -1,0 +1,12 @@
+let PasskeyIOC = dynamic([
+"deploypasskey.com",
+"setpasskey.com",
+"passkeymanage.com",
+"assignpasskey.com",
+"addpasskey.com",
+"passkeyadd.com",
+"passkeydeploy.com",
+"deploypasskey.com"]);
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where RemoteUrl has_any(PasskeyIOC)
