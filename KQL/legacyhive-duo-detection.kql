@@ -1,0 +1,11 @@
+let LookBack = 1h;
+let AntimalwareDetection =
+DeviceEvents
+| where Timestamp > ago(LookBack)
+| where parse_json(AdditionalFields)["Description"] has "Trojan:Win64/LegacyHive";
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == @"FileCreated"
+| where FolderPath matches regex @"\\[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\"
+| where tolower(FileName) in~ ("ntuser.dat", "usrclass.dat")
+| union AntimalwareDetection
