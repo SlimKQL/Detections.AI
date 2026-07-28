@@ -1,0 +1,6 @@
+DeviceFileEvents
+| where TimeStamp > ago(30d)
+| where FileName has "efaidnbmnnnibpcajpcglclefindmkaj"
+| summarize arg_max(Timestamp, *) by DeviceId
+| where FileName <> "EFAIDNBMNNNIBPCAJPCGLCLEFINDMKAJ_26_7_2_0.crx"
+| project Timestamp, DeviceName, FileName
