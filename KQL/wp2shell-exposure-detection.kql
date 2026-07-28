@@ -1,0 +1,7 @@
+DeviceFileEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessFileName in~ ("w3wp.exe", "php-cgi.exe", "httpd.exe", "nginx.exe", "apache2.exe")
+| where FolderPath has "\\wp-content\\"
+| distinct DeviceName
+| join DeviceInfo on DeviceName
+| where IsInternetFacing == true and isnotempty(PublicIP)
