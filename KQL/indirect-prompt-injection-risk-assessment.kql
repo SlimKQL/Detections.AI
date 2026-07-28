@@ -1,0 +1,9 @@
+let HighRiskAgentOwner =
+ExposureGraphNodes 
+| where NodeLabel == @"ai-agent"
+| where parse_json(NodeProperties).rawData.aiAgentMetadata.publishedStatus == "Published"
+| where parse_json(NodeProperties).rawData.indirectPromptInjectionRiskIndicator == true
+| join ExposureGraphEdges on $left.NodeId == $right.TargetNodeId
+| distinct SourceNodeId;
+ExposureGraphEdges
+| where TargetNodeId has_any(HighRiskAgentOwner)
