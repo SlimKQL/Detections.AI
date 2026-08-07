@@ -2,7 +2,8 @@ let NpmNodeFilename = dynamic(["node", "npm.cmd", "npm", "npx.cmd", "npx"]);
 let SocketCompromisedNPM=externaldata(Ecosystem:string, Namespace:string, NPMName:string, Version:string)
 [h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/compromised-npm-packages.csv']
 with (format='csv', ignoreFirstRecord=true)
-| project NPMName;
+| where isnotempty(NPMName) and isnotempty(Version)
+| project strcat(NPMName,"@",Version);
 DeviceProcessEvents
 | where Timestamp > ago(30d)
 | where FileName has_any(NpmNodeFilename) 
