@@ -1,0 +1,9 @@
+let Kali365Urls=externaldata(ID:string,url:string,Time:string,ThreatLevel:string,IsNew:string,
+RelatedDomainsvalue:string,RelatedDomainsthreatLevel:string,RelatedIpsvalue:string,RelatedIpsport:string,
+RelatedIpsgeo:string,RelatedIpsasn:string,RelatedIpsthreatLevel:string )
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/Kali365_Urls.csv']
+with (format='csv', ignoreFirstRecord=true);
+Kali365Urls
+| where isnotempty(RelatedIpsasn)
+| summarize Count=count() by tolower(RelatedIpsasn)
+| sort by Count desc 
