@@ -1,0 +1,18 @@
+let BTRsys = dynamic([
+"221a34f7b4cc76aa5b802aa330252c657afeb7863ad42e568c23aaa67862e3a3",
+"41989526b4eb8d60a5e158f835ee90eea5fe4e499705109317cd6f72114c852f",
+"466395e00d2652367e60bd98af386d80f7faa278ab549f06b4ee86ece9c4ec0d",
+"55d998973c182c395b5407a42b63dbb528c65d829a7af6cd08797b0ede631eef",
+"b8c6a3dc5f655d25d60954c1ef82e3f2981cf6cc264c9c3f50fbdff024902ae8"
+]);
+let LookBack = 1h;
+let BTRsysLoaded =
+DeviceEvents
+| where Timestamp > ago(LookBack)
+| where ActionType == @"DriverLoad" and SHA256 has_any(BTRsys)
+| where InitiatingProcessFileName !has "MsMpEng.exe"
+| distinct DeviceName;
+DeviceFileEvents
+| where Timestamp > ago(LookBack)
+| where DeviceName has_any(BTRsysLoaded)
+| where FileName has "BootClean.log"
