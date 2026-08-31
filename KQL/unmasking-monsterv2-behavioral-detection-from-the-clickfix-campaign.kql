@@ -1,0 +1,11 @@
+let Lookback = 1h;
+let PreC2Behaviour =
+DeviceNetworkEvents
+| where Timestamp > ago(Lookback)
+| where RemoteUrl has "api.ipify.org"
+| distinct DeviceName;
+DeviceNetworkEvents
+| where Timestamp > ago(Lookback)
+| where not(ipv4_is_private(RemoteIP)) and RemoteIP != "127.0.0.1"
+| where RemotePort == 7712
+| where DeviceName has_any(PreC2Behaviour)
