@@ -1,0 +1,9 @@
+let EvilTwinExtensions=externaldata(Num:string, ExtensionName:string, Version:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/openvsx-evil-twins-2026-07.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project tolower(ExtensionName);
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where InitiatingProcessCommandLine has "\\.vscode\\extensions\\" and InitiatingProcessCommandLine has "code.exe"
+| extend ExtensionName = tolower(extract(@"extensions\\([^\\]+)", 1, InitiatingProcessCommandLine))
+| where ExtensionName has_any(EvilTwinExtensions)
