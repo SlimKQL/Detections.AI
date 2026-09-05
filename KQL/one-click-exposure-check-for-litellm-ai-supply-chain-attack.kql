@@ -1,0 +1,10 @@
+let IOC=externaldata(Domain:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/LiteLLMdomains.csv']
+with (format='csv', ignoreFirstRecord=true)
+| project Domain;
+EntraIdSignInEvents
+| where Timestamp > ago(30d) 
+| where AccountUpn has_any(IOC)
+| extend Domain = tostring(split(AccountUpn, "@")[1])
+| extend DomainType = iff(IsGuestUser==0, "TenantDomain", "GuestDomain")
+| distinct DomainType, Domain
