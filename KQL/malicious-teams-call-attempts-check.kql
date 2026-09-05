@@ -1,0 +1,12 @@
+CloudAppEvents
+| where TimeGenerated > ago(90d)
+| where Application == @"Microsoft Teams"
+| where ActionType == @"CallParticipantDetail"
+| where tostring(RawEventData.Attendees) has "@"
+| extend CallerPSTN = tostring(RawEventData.UserId)
+| extend Domain = tostring(split(CallerPSTN, "@")[1])
+| extend Caller = tostring(split(CallerPSTN, "@")[0])
+| where CallerPSTN has "onmicrosoft.com" and 
+(CallerPSTN has "helpdesk" or CallerPSTN has "support" 
+or CallerPSTN has "admin")
+| distinct Caller, Domain
