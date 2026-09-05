@@ -1,0 +1,8 @@
+let LookBack = 1h;
+SigninLogs
+| where TimeGenerated > ago(LookBack)
+| where ResultType == "0"
+| where DeviceDetail.deviceId == ""
+| where AuthenticationDetails has '"authenticationMethod":"Windows Hello for Business"'
+| where AuthenticationContextClassReferences has '"urn:user:registerdevice"'
+| where RiskDetail <> "none" or RiskLevelAggregated <> "none" or RiskState <> "none"
