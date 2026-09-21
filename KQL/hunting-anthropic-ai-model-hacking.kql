@@ -1,0 +1,17 @@
+let Lookup = 30d;
+let AnthropicEntraSignIn = EntraIdSignInEvents 
+| where Timestamp > ago(Lookup)
+| where ipv4_is_in_range(IPAddress, "160.79.104.0/21");
+let AnthropicInboundTraffic = DeviceNetworkEvents
+| where Timestamp > ago(Lookup)
+| where ActionType == "InboundConnectionAccepted" and ipv4_is_in_range(RemoteIP, "160.79.104.0/21");
+let AnthropicGraphAPIInbound = GraphAPIAuditEvents
+| where Timestamp > ago(Lookup)
+| where ipv4_is_in_range(IpAddress, "160.79.104.0/21");
+let AnthropicM365Inbound = CloudAppEvents
+| where Timestamp > ago(Lookup)
+| where ipv4_is_in_range(IPAddress, "160.79.104.0/21");
+EmailEvents
+| where Timestamp > ago(Lookup)
+| where ipv4_is_in_range(SenderIPv4, "160.79.104.0/21")
+| union AnthropicEntraSignIn, AnthropicInboundTraffic, AnthropicGraphAPIInbound, AnthropicM365Inbound
