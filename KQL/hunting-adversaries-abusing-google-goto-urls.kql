@@ -1,0 +1,9 @@
+let LookupPeriod = 7d;
+EmailUrlInfo
+| where TimeGenerated > ago(LookupPeriod)
+| where Url has "www.google.com/goto?url="
+| join EmailEvents on NetworkMessageId
+| where EmailDirection == "Inbound" and DeliveryAction == "Delivered"
+| where IsFirstContact == true
+| summarize GoogleGotoUrlCount=count() by SenderFromDomain
+| sort by GoogleGotoUrlCount desc 
