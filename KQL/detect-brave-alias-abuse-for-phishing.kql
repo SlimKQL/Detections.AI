@@ -1,0 +1,8 @@
+EmailEvents
+| where Timestamp > ago(1h)
+| where EmailDirection == @"Inbound"
+| where SenderMailFromAddress has "@bravealias.com" or SenderFromAddress has "@bravealias.com"
+| where IsFirstContact == "1" and LatestDeliveryAction == @"Delivered"
+| extend SenderEmail = iff(SenderMailFromAddress has "@bravealias.com", SenderMailFromAddress, SenderFromAddress)
+| summarize MailCount = count() by SenderEmail
+| where MailCount >= 3
