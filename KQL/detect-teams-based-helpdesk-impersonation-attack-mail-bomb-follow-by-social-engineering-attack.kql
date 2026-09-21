@@ -1,0 +1,14 @@
+let Lookup = 1h;
+let MailBombVictim =
+EmailEvents
+| where Timestamp > ago(Lookup)
+| where DetectionMethods has "Mail bombing"
+| distinct RecipientEmailAddress;
+CloudAppEvents
+| where Timestamp > ago(Lookup)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationDisplayName = tostring(parse_json(tostring(RawEventData.Sender)).DisplayName)
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| extend ImpactedUserUPN = tostring(RawEventData.UserId)
+| where ImpactedUserUPN has_any(MailBombVictim)
+| project Timestamp, AccountType, ImpactedUserUPN, ImpersonationDisplayName, ImpersonationUPN
