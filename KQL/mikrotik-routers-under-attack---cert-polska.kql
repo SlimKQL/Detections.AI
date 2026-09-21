@@ -1,0 +1,5 @@
+DeviceInfo
+| where TimeGenerated > ago(90d)
+| where Vendor == "MikroTik" and OSDistribution == "MikroTikRouterOS"
+| where OSVersionInfo != "6.49.21" or OSVersionInfo != "7.23.4" or OSVersionInfo != "7.24.2"
+| summarize arg_max(TimeGenerated, *) by DeviceId
