@@ -1,0 +1,9 @@
+ExposureRecommendations
+| where TimeGenerated > ago(30d)
+| where AssetType == "AI Agent"
+| where Severity == "High"
+| where Title == "Remove secrets or credentials from AI agent instructions" or 
+Title == "Restrict user access for an AI agent with High Blast Radius" or 
+Title == "Enforce authentication for published AI agent with privileged data access" or
+Title == "Remove Secrets from MCP Arguments"
+| summarize arg_max(TimeGenerated, *) by AssetId
