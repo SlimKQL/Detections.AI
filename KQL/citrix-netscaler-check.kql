@@ -1,0 +1,4 @@
+DeviceInfo
+| where Timestamp > ago(30d)
+| where Vendor == "Citrix" and OSDistribution == "NetScaler"
+| summarize arg_max(Timestamp, *) by DeviceId
