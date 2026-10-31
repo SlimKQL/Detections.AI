@@ -1,0 +1,9 @@
+DeviceEvents
+| where Timestamp > ago(30d)
+| where ActionType == @"DnsQueryResponse"
+| extend DNSHostQuery = tostring(parse_json(AdditionalFields).DnsQueryString)
+| extend ProcessQuery = tostring(parse_json(AdditionalFields).ClientProcessName)
+| where DNSHostQuery startswith "xn--"
+| extend PunyDomain = punycode_domain_from_string(DNSHostQuery)
+| summarize Count=count() by PunyDomain, ProcessQuery
+| sort by Count desc 
