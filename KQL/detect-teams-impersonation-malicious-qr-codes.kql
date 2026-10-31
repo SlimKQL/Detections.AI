@@ -1,0 +1,12 @@
+let Lookup = 1h;
+let UPNImpersonation =
+CloudAppEvents
+| where Timestamp > ago(Lookup)
+| where ActionType == "TeamsImpersonationDetected"
+| extend ImpersonationUPN = tostring(parse_json(tostring(RawEventData.Sender)).UPN)
+| distinct ImpersonationUPN;
+MessageEvents
+| where Timestamp > ago(Lookup)
+| where SenderEmailAddress has_any(UPNImpersonation)
+| join MessageUrlInfo on TeamsMessageId
+| where UrlLocation has "QRCode"
