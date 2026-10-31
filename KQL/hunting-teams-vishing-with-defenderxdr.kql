@@ -1,0 +1,5 @@
+CloudAppEvents
+| where Timestamp > ago(1h)
+| where ActionType == "SecurityRiskInCallDetected"
+| extend CallId = tostring(RawEventData.CallId)
+| join CallActivityEvents on CallId
