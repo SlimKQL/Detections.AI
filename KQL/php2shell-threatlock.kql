@@ -1,0 +1,12 @@
+let GreyNoiseIOC=externaldata(IP:string, AttackOrganisation:string)
+[h'https://raw.githubusercontent.com/SlimKQL/Hunting-Queries-Detection-Rules/refs/heads/main/IOC/greynoise_php2shell_attacker_ips.csv']
+with (format='csv', ignoreFirstRecord=true)
+| distinct IP;
+let VulnerablePHPEndpoint =
+DeviceTvmSoftwareVulnerabilities 
+| where CveId == "CVE-2026-109618" or CveId == "CVE-2026-109619"
+| distinct DeviceId;
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where DeviceId has_any(VulnerablePHPEndpoint) and RemoteIP has_any(GreyNoiseIOC)
+| project Timestamp, DeviceName, InitiatingProcessFileName, InitiatingProcessCommandLine, LocalIP, RemoteIP
