@@ -1,0 +1,12 @@
+let PrivilgedUsers =
+IdentityInfo
+| where Timestamp > ago(30d) 
+| where isnotempty(tostring(PrivilegedEntraPimRoles))
+| distinct AccountUpn;
+AgentsInfo 
+| where Platform == @"LocalAgents"
+| summarize arg_max(Timestamp, *) by AgentId
+| extend AgentData = parse_json(RawAgentInfo)
+| extend AgentOwner = tostring(AgentData.localAgentMetadata.upn)
+| where AgentOwner has_any(PrivilgedUsers)
+| where LifecycleStatus != @"Deleted"
