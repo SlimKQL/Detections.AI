@@ -1,0 +1,9 @@
+ThreatIntelEntities
+| where Modified > ago(30d)
+| extend ActivityGroup = tostring(split(Tags,",")[0])
+| where ActivityGroup != @"activitygroup:unknown actor"
+| where Tags has "mitre"
+| extend MITRETactics = extract_all(@'"fullname":"mitre/([^"]+)"', tostring(Tags))
+| mv-expand MITRETactics
+| summarize Tactics=count() by ActivityGroup, tostring(MITRETactics)
+| sort by Tactics desc 
