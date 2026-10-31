@@ -1,0 +1,20 @@
+let FixVersion = dynamic(["8.5.12", "8.4.27", "8.3.36", "8.2.35"]);
+let Shells = dynamic(["sh","zsh","dash","bash","bash.exe","cmd.exe","node","powershell","pwsh"]);
+let WEBBinary = dynamic(["php","php.exe","php-win","php-cgi","w3wp.exe", "httpd", "nginx", "apache2"]);
+let InternetFacing =
+DeviceInfo
+| where (IsInternetFacing == true and isnotempty(PublicIP))
+or (isnotempty(PublicIP) and OSPlatform == "Linux")
+or (isnotempty(PublicIP) and OSPlatform == "macOS")
+| distinct DeviceId;
+let InternetFacingVulnerablePHP =
+DeviceTvmSoftwareVulnerabilities 
+| where CveId == "CVE-2026-109618" or CveId == "CVE-2026-109619"
+| where DeviceId has_any(InternetFacing)
+| distinct DeviceId;
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where DeviceId has_any(InternetFacingVulnerablePHP)
+| where InitiatingProcessFileName has_any(WEBBinary)
+| where FileName has_any(Shells)
+| project Timestamp, DeviceName, AccountName, InitiatingProcessFileName, InitiatingProcessCommandLine, FileName, ProcessCommandLine
