@@ -1,0 +1,8 @@
+let CF = dynamic(["workers.dev","pages.dev","r2.dev","trycloudflare.com"]);
+ThreatIntelEntities 
+| where Modified > ago(30d)
+| where ObservableKey == @"domain-name:value"
+| where ObservableValue has_any(CF)
+| extend ActivityGroup = tostring(split(Tags, ",")[0])
+| summarize Count=count() by ActivityGroup
+| sort by Count desc 
