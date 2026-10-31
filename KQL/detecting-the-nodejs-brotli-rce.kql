@@ -1,0 +1,12 @@
+let NodeJSBrotliRCE =
+DeviceTvmSoftwareVulnerabilities 
+| where CveId == "CVE-2026-111497"
+| distinct DeviceId;
+DeviceProcessEvents
+| where Timestamp > ago (1h)
+| where InitiatingProcessFileName has "node" or InitiatingProcessFileName has "node.exe"
+| where FileName in~ ("cmd.exe","powershell.exe","pwsh.exe","conhost.exe","cscript.exe","wscript.exe")
+| where DeviceId has_any(NodeJSBrotliRCE)
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine,
+InitiatingProcessFileName, InitiatingProcessParentFileName
+| order by Timestamp desc
