@@ -1,0 +1,17 @@
+let Viewer2Shell =
+DeviceNetworkEvents
+| where Timestamp > ago(1h)
+| where ActionType == "ConnectionSuccess"
+| where InitiatingProcessVersionInfoCompanyName == "TeamViewer Germany GmbH"
+| where InitiatingProcessFileName == "teamviewer.exe"
+| where InitiatingProcessVersionInfoProductVersion !has "15.83"
+| where RemoteUrl !has "teamviewer.com"
+| where RemoteIPType == "Public"
+| distinct DeviceId;
+DeviceProcessEvents
+| where Timestamp > ago (1h)
+| where InitiatingProcessFileName == "teamviewer.exe"
+| where FileName in~ ("cmd.exe","powershell.exe","pwsh.exe","conhost.exe","cscript.exe","wscript.exe")
+| where DeviceId has_any(Viewer2Shell)
+| project Timestamp, DeviceName, AccountName, FileName, ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessParentFileName
+| order by Timestamp desc
